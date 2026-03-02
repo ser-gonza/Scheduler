@@ -1,0 +1,48 @@
+<!-- Display current plan and allows reset/removal/submit -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Schedule</title>
+</head>
+<body>
+<h1>Your Schedule</h1>
+
+<p><a href="/courses">Back to Courses</a></p>
+
+<ul>
+    <li th:each="c : ${schedulePlan.courses}"> <!-- Shows session plan courses -->
+        <span th:text="${c.code}"></span> -
+        <span th:text="${c.title}"></span>
+
+        <form method="post" action="/schedule/remove" style="display:inline"> <!-- Remove form posts -->
+            <input type="hidden" name="courseId" th:value="${c.id}">
+            <button type="submit">Remove</button>
+        </form>
+    </li>
+</ul>
+
+<form method="post" action="/schedule/reset">
+    <button type="submit">Reset Plan</button>
+</form>
+
+<hr/>
+
+<form method="post" action="/schedule/submit" th:object="${scheduleSubmission}"> <!-- Submit forms to schedule/submit -->
+
+    <div th:if="${#fields.hasErrors('*')}">
+        <p th:each="e : ${#fields.errors('*')}"
+           th:text="${e}"
+           style="color:red"></p>
+    </div>
+
+    <div th:if="${#fields.hasGlobalErrors()}">
+        <p th:each="e : ${#fields.globalErrors()}"
+           th:text="${e}"
+           style="color:red"></p>
+    </div>
+
+    <button type="submit">Submit Schedule</button>
+</form>
+
+</body>
+</html>

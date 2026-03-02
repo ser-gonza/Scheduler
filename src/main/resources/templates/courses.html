@@ -1,0 +1,44 @@
+<!-- Browse/Add UI -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Courses</title>
+
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Available Course Selection</h1>
+
+    <p><a href="/schedule">Go to Schedule</a></p>
+
+    <table>
+        <tr>
+            <th>Code</th>
+            <th>Title</th>
+            <th>Credits</th>
+            <th>Time</th>
+            <th></th>
+        </tr>
+
+        <tr th:each="c : ${courses}">
+            <td th:text="${c.code}"></td>
+            <td th:text="${c.title}"></td>
+            <td th:text="${c.credits}"></td>
+            <td th:text="${c.timeslot}"></td>
+            <td>
+                <form method="post" action="/schedule/add">
+                    <input type="hidden" name="courseId" th:value="${c.id}">
+                    <button type="submit">Add</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+</body>
+</html>
