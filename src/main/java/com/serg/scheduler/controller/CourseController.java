@@ -9,10 +9,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 //Handles course browsing and add/remove/reset buttons
+//Handles HTTP requests related to courses
 
 @Controller
-@RequiredArgsConstructor
-@SessionAttributes("schedulePlan")
+@RequiredArgsConstructor //Lombok, automatically generates constructors for "final" fields
+@SessionAttributes("schedulePlan") //If a model attribute exists named schedulePlan, store inside user's session, reuse across requests
 public class CourseController {
 
     private final CourseRepository courseRepo;
@@ -23,7 +24,7 @@ public class CourseController {
         return new SchedulePlan();
     }
 
-    @GetMapping("/courses")
+    @GetMapping("/courses") //Retrieves data
     public String courses(Model model) {
         model.addAttribute("courses", courseRepo.findAll()); //Pulls all courses from DB, puts into model named courses
         return "courses"; //Returns view

@@ -2,47 +2,49 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Schedule</title>
+    <title>Your Schedule</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
 </head>
 <body>
-<h1>Your Schedule</h1>
 
-<p><a href="/courses">Back to Courses</a></p>
+<div class="container">
 
-<ul>
-    <li th:each="c : ${schedulePlan.courses}"> <!-- Shows session plan courses -->
-        <span th:text="${c.code}"></span> -
-        <span th:text="${c.title}"></span>
+    <h1>Your Schedule</h1>
 
-        <form method="post" action="/schedule/remove" style="display:inline"> <!-- Remove form posts -->
-            <input type="hidden" name="courseId" th:value="${c.id}">
-            <button type="submit">Remove</button>
-        </form>
-    </li>
-</ul>
+    <p><a href="/courses">Back</a></p>
 
-<form method="post" action="/schedule/reset">
-    <button type="submit">Reset Plan</button>
-</form>
+    <table>
+        <tr>
+            <th>Code</th>
+            <th>Title</th>
+            <th>Credits</th>
+            <th>Time</th>
+            <th></th>
+        </tr>
 
-<hr/>
+        <tr th:each="c : ${schedulePlan.courses}">
+            <td th:text="${c.code}"></td>
+            <td th:text="${c.title}"></td>
+            <td th:text="${c.credits}"></td>
+            <td th:text="${c.timeslot}"></td>
+            <td>
+                <form method="post" action="/schedule/remove">
+                    <input type="hidden" name="courseId" th:value="${c.id}">
+                    <button type="submit">Remove</button>
+                </form>
+            </td>
+        </tr>
+    </table>
 
-<form method="post" action="/schedule/submit" th:object="${scheduleSubmission}"> <!-- Submit forms to schedule/submit -->
+    <form method="post" action="/schedule/reset">
+        <button type="submit">Reset Plan</button>
+    </form>
 
-    <div th:if="${#fields.hasErrors('*')}">
-        <p th:each="e : ${#fields.errors('*')}"
-           th:text="${e}"
-           style="color:red"></p>
-    </div>
+    <form method="post" action="/schedule/submit">
+        <button type="submit">Submit Schedule</button>
+    </form>
 
-    <div th:if="${#fields.hasGlobalErrors()}">
-        <p th:each="e : ${#fields.globalErrors()}"
-           th:text="${e}"
-           style="color:red"></p>
-    </div>
-
-    <button type="submit">Submit Schedule</button>
-</form>
+</div>
 
 </body>
 </html>

@@ -1,8 +1,21 @@
 <!-- Confirmation page when submitted -->
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Confirmation</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
 <body>
-<h1>Schedule has been submitted!</h1>
-<p><a href="/courses">Build another schedule</a></p>
+
+<div class="container">
+
+    <h1>Schedule Submitted Successfully!</h1>
+
+    <p>Your schedule has been saved.</p>
+
+    <p><a href="/courses">Return to Courses</a></p>
+
+</div>
+
 </body>
 </html>
