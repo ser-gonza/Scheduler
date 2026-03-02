@@ -12,7 +12,7 @@ import java.util.List;
 
 //Stored in DB table
 @Entity
-@Data
+@Data //Lombok, adds helper methods
 public class ScheduleSubmission {
     //DB creates IDs for each submission
     @Id

@@ -45,8 +45,8 @@ public class ScheduleController {
             return "schedule";
         }
 
-        submission.getCourses().clear();
-        submission.getCourses().addAll(schedulePlan.getCourses());
+        submission.getCourses().clear(); //Ensures a clear line
+        submission.getCourses().addAll(schedulePlan.getCourses()); //Places into submission entity
 
         submissionRepo.save(submission); //Saves submission to repo
         status.setComplete(); //Clears session
