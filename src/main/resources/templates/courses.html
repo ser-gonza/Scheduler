@@ -1,44 +1,157 @@
-<!-- Browse/Add UI -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Courses</title>
-
     <link rel="stylesheet" th:href="@{/styles.css}">
 </head>
-
 <body>
+<div class="page-layout">
 
-<div class="container">
+    <aside class="sidebar">
+        <h2>Progress</h2>
 
-    <h1>Available Course Selection</h1>
+        <p><strong>User:</strong> <span th:text="${schedulePlan.username}"></span></p>
+        <p><strong>Major:</strong> <span th:text="${schedulePlan.selectedMajor.name}"></span></p>
 
-    <p><a href="/schedule">Go to Schedule</a></p>
+        <hr>
 
-    <table>
-        <tr>
-            <th>Code</th>
-            <th>Title</th>
-            <th>Credits</th>
-            <th>Time</th>
-            <th></th>
-        </tr>
+        <p><strong>Current Semester:</strong>
+            <span th:text="${schedulePlan.currentSemesterName}"></span>
+        </p>
 
-        <tr th:each="c : ${courses}">
-            <td th:text="${c.code}"></td>
-            <td th:text="${c.title}"></td>
-            <td th:text="${c.credits}"></td>
-            <td th:text="${c.timeslot}"></td>
-            <td>
-                <form method="post" action="/schedule/add">
-                    <input type="hidden" name="courseId" th:value="${c.id}">
-                    <button type="submit">Add</button>
+        <div class="semester-nav">
+            <form method="post" action="/schedule/previous-semester">
+                <button type="submit">Previous Semester</button>
+            </form>
+
+            <form method="post" action="/schedule/next-semester">
+                <button type="submit">Next Semester</button>
+            </form>
+        </div>
+
+        <hr>
+
+        <p>Total Credits:
+            <span th:text="${schedulePlan.totalCredits}"></span> /
+            <span th:text="${schedulePlan.selectedMajor.totalCreditsRequired}"></span>
+        </p>
+
+        <p>Arts & Humanities:
+            <span th:text="${schedulePlan.getCreditsForCategory('Arts & Humanities')}"></span> /
+            <span th:text="${schedulePlan.selectedMajor.artsHumanitiesRequired}"></span>
+        </p>
+
+        <p>Math & Science:
+            <span th:text="${schedulePlan.getCreditsForCategory('Math & Science')}"></span> /
+            <span th:text="${schedulePlan.selectedMajor.mathScienceRequired}"></span>
+        </p>
+
+        <p>Major:
+            <span th:text="${schedulePlan.getCreditsForCategory('Major')}"></span> /
+            <span th:text="${schedulePlan.selectedMajor.majorCreditsRequired}"></span>
+        </p>
+
+        <hr>
+
+        <p><a href="/schedule" class="nav-link">View Full 8-Semester Plan</a></p>
+
+        <form method="post" action="/logout">
+            <button type="submit">Logout</button>
+        </form>
+    </aside>
+
+    <main class="content">
+        <div class="two-column-layout">
+
+            <div class="card">
+                <h1>Available Courses</h1>
+                <p>Adding courses to: <strong th:text="${schedulePlan.currentSemesterName}"></strong></p>
+
+                <p class="error" th:if="${addError}" th:text="${addError}"></p>
+
+                <table>
+                    <tr>
+                        <th>Code</th>
+                        <th>Title</th>
+                        <th>Credits</th>
+                        <th>Time</th>
+                        <th>Category</th>
+                        <th>Requirement</th>
+                        <th>Prerequisites</th>
+                        <th></th>
+                    </tr>
+
+                    <tr th:each="c : ${courses}">
+                        <td th:text="${c.code}"></td>
+                        <td th:text="${c.title}"></td>
+                        <td th:text="${c.credits}"></td>
+                        <td th:text="${c.timeslot}"></td>
+                        <td th:text="${c.creditCategory}"></td>
+                        <td th:text="${c.requirementType}"></td>
+                        <td th:text="${c.prerequisites}"></td>
+                        <td>
+                            <div th:if="${schedulePlan.isCourseSelected(c.id)}">
+                                <button disabled>Already Selected</button>
+                            </div>
+
+                            <div th:if="${!schedulePlan.isCourseSelected(c.id) and !schedulePlan.canTakeCourse(c)}">
+                                <button disabled>Missing Prereqs</button>
+                                <p class="small-note">
+                                    Need:
+                                    <span th:text="${schedulePlan.getMissingPrerequisites(c)}"></span>
+                                </p>
+                            </div>
+
+                            <form th:if="${!schedulePlan.isCourseSelected(c.id) and schedulePlan.canTakeCourse(c)}"
+                                  method="post"
+                                  action="/schedule/add">
+                                <input type="hidden" name="courseId" th:value="${c.id}">
+                                <button type="submit">Add</button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card current-schedule-card">
+                <h2 th:text="${schedulePlan.currentSemesterName} + ' Schedule'"></h2>
+
+                <table>
+                    <tr>
+                        <th>Code</th>
+                        <th>Title</th>
+                        <th>Credits</th>
+                        <th></th>
+                    </tr>
+
+                    <tr th:each="c : ${schedulePlan.currentSemester.courses}">
+                        <td th:text="${c.code}"></td>
+                        <td th:text="${c.title}"></td>
+                        <td th:text="${c.credits}"></td>
+                        <td>
+                            <form method="post" action="/schedule/remove">
+                                <input type="hidden" name="courseId" th:value="${c.id}">
+                                <button type="submit">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+
+                <p><strong>Semester Credits:</strong>
+                    <span th:text="${schedulePlan.currentSemester.totalCredits}"></span>
+                </p>
+
+                <form method="post" action="/schedule/reset">
+                    <button type="submit">Reset Entire Plan</button>
                 </form>
-            </td>
-        </tr>
-    </table>
 
+                <form method="post" action="/schedule/submit">
+                    <button type="submit">Submit Schedule</button>
+                </form>
+            </div>
+
+        </div>
+    </main>
 </div>
-
 </body>
 </html>

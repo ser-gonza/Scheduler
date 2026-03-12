@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Choose Major</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<div class="container card">
+    <h1>Choose a Major</h1>
+
+    <table>
+        <tr>
+            <th>Major</th>
+            <th>Total Credits</th>
+            <th>Arts & Humanities</th>
+            <th>Math & Science</th>
+            <th>Major Credits</th>
+            <th></th>
+        </tr>
+
+        <tr th:each="m : ${majors}">
+            <td th:text="${m.name}"></td>
+            <td th:text="${m.totalCreditsRequired}"></td>
+            <td th:text="${m.artsHumanitiesRequired}"></td>
+            <td th:text="${m.mathScienceRequired}"></td>
+            <td th:text="${m.majorCreditsRequired}"></td>
+            <td>
+                <form method="post" action="/majors/select">
+                    <input type="hidden" name="majorId" th:value="${m.id}">
+                    <button type="submit">Choose</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

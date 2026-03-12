@@ -1,4 +1,3 @@
-<!-- Display current plan and allows reset/removal/submit -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -6,45 +5,86 @@
     <link rel="stylesheet" th:href="@{/styles.css}">
 </head>
 <body>
+<div class="page-layout">
 
-<div class="container">
+    <aside class="sidebar">
+        <h2>Progress</h2>
 
-    <h1>Your Schedule</h1>
+        <p><strong>User:</strong> <span th:text="${schedulePlan.username}"></span></p>
+        <p><strong>Major:</strong> <span th:text="${schedulePlan.selectedMajor.name}"></span></p>
+        <p><strong>Expected Graduation:</strong> <span th:text="${schedulePlan.expectedGraduationDate}"></span></p>
 
-    <p><a href="/courses">Back</a></p>
+        <hr>
 
-    <table>
-        <tr>
-            <th>Code</th>
-            <th>Title</th>
-            <th>Credits</th>
-            <th>Time</th>
-            <th></th>
-        </tr>
+        <p>Total Credits:
+            <span th:text="${schedulePlan.totalCredits}"></span> /
+            <span th:text="${schedulePlan.selectedMajor.totalCreditsRequired}"></span>
+        </p>
 
-        <tr th:each="c : ${schedulePlan.courses}">
-            <td th:text="${c.code}"></td>
-            <td th:text="${c.title}"></td>
-            <td th:text="${c.credits}"></td>
-            <td th:text="${c.timeslot}"></td>
-            <td>
-                <form method="post" action="/schedule/remove">
-                    <input type="hidden" name="courseId" th:value="${c.id}">
-                    <button type="submit">Remove</button>
-                </form>
-            </td>
-        </tr>
-    </table>
+        <p>Arts & Humanities:
+            <span th:text="${schedulePlan.getCreditsForCategory('Arts & Humanities')}"></span> /
+            <span th:text="${schedulePlan.selectedMajor.artsHumanitiesRequired}"></span>
+        </p>
 
-    <form method="post" action="/schedule/reset">
-        <button type="submit">Reset Plan</button>
-    </form>
+        <p>Math & Science:
+            <span th:text="${schedulePlan.getCreditsForCategory('Math & Science')}"></span> /
+            <span th:text="${schedulePlan.selectedMajor.mathScienceRequired}"></span>
+        </p>
 
-    <form method="post" action="/schedule/submit">
-        <button type="submit">Submit Schedule</button>
-    </form>
+        <p>Major:
+            <span th:text="${schedulePlan.getCreditsForCategory('Major')}"></span> /
+            <span th:text="${schedulePlan.selectedMajor.majorCreditsRequired}"></span>
+        </p>
 
+        <hr>
+
+        <p><a href="/courses" class="nav-link">Back to Courses</a></p>
+    </aside>
+
+    <main class="content">
+        <div class="card">
+            <h1>Your Full 8-Semester Plan</h1>
+
+            <p class="error" th:if="${submitError}" th:text="${submitError}"></p>
+
+            <div th:each="semester : ${schedulePlan.semesters}" class="semester-box">
+                <h2 th:text="${semester.name}"></h2>
+
+                <table>
+                    <tr>
+                        <th>Code</th>
+                        <th>Title</th>
+                        <th>Credits</th>
+                        <th>Time</th>
+                        <th></th>
+                    </tr>
+
+                    <tr th:each="c : ${semester.courses}">
+                        <td th:text="${c.code}"></td>
+                        <td th:text="${c.title}"></td>
+                        <td th:text="${c.credits}"></td>
+                        <td th:text="${c.timeslot}"></td>
+                        <td>
+                            <form method="post" action="/schedule/remove">
+                                <input type="hidden" name="courseId" th:value="${c.id}">
+                                <button type="submit">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+
+                <p><strong>Semester Credits:</strong> <span th:text="${semester.totalCredits}"></span></p>
+            </div>
+
+            <form method="post" action="/schedule/reset">
+                <button type="submit">Reset Plan</button>
+            </form>
+
+            <form method="post" action="/schedule/submit">
+                <button type="submit">Submit Schedule</button>
+            </form>
+        </div>
+    </main>
 </div>
-
 </body>
 </html>

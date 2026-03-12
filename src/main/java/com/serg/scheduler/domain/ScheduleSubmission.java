@@ -1,7 +1,6 @@
 package com.serg.scheduler.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -19,9 +18,14 @@ public class ScheduleSubmission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String expectedGraduationDate;
+    private String username;
+    private String majorName;
+    private int totalCredits;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @NotEmpty(message = "Choose at the minimum one course before submitting.")
-    @ManyToMany //Relationship between ScheduleSubmission and Course, allows each submission to have multiple courses and each course to belong to multiple entries.
-    private List<Course> courses = new ArrayList<>();
+    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("semesterIndex ASC")
+    private List<SubmittedSemester> semesters = new ArrayList<>();
 }

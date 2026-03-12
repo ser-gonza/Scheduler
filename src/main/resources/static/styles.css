@@ -1,25 +1,117 @@
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f6f9;
+    margin: 0;
 }
 
-.container {
-    width: 800px;
-    margin: 50px auto;   /* Centers horizontally */
-    text-align: center;  /* Centers text */
+.page-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 290px;
+    background: #8b0000;
+    color: white;
+    padding: 25px;
+    box-sizing: border-box;
+}
+
+.sidebar a {
+    color: white;
+    text-decoration: none;
+}
+
+.content {
+    flex: 1;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
 table {
-    margin: 0 auto; /* Centers */
+    width: 100%;
+    margin: 20px auto;
     border-collapse: collapse;
+    background: white;
 }
 
 th, td {
     padding: 10px;
     border: 1px solid #ddd;
+    text-align: center;
+    vertical-align: top;
 }
 
 button {
-    padding: 6px 12px;
+    padding: 8px 14px;
+    border: none;
+    background: #2f6feb;
+    color: white;
+    border-radius: 6px;
     cursor: pointer;
+    margin: 4px 0;
+}
+
+button:disabled {
+    background: gray;
+    cursor: not-allowed;
+}
+
+.semester-box {
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+}
+
+.nav-link {
+    display: inline-block;
+    padding: 8px 14px;
+    background: #2f6feb;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.semester-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.two-column-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.current-schedule-card {
+    position: sticky;
+    top: 20px;
+}
+
+.small-note {
+    font-size: 12px;
+    color: #b22222;
+    margin-top: 6px;
+}
+
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }

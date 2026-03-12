@@ -18,4 +18,9 @@ public class Course {
     private String title;
     private int credits;
     private String timeslot;
+
+    // New fields
+    private String creditCategory;   //Arts & Humanities, Math & Science, Major
+    private String requirementType;  //Core, Elective, GenEd
+    private String prerequisites;    //Simple text for now
 }
