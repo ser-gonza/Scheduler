@@ -11,34 +11,42 @@
         <h2>Progress</h2>
 
         <p><strong>User:</strong> <span th:text="${schedulePlan.username}"></span></p>
-        <p><strong>Major:</strong> <span th:text="${schedulePlan.selectedMajor.name}"></span></p>
+        <p><strong>Role:</strong> <span th:text="${schedulePlan.userRole}"></span></p>
+        <p><strong>Major:</strong> <span th:text="${schedulePlan.selectedMajor != null ? schedulePlan.selectedMajor.name : 'Not Set'}"></span></p>
         <p><strong>Expected Graduation:</strong> <span th:text="${schedulePlan.expectedGraduationDate}"></span></p>
 
         <hr>
 
         <p>Total Credits:
             <span th:text="${schedulePlan.totalCredits}"></span> /
-            <span th:text="${schedulePlan.selectedMajor.totalCreditsRequired}"></span>
+            <span th:text="${schedulePlan.selectedMajor != null ? schedulePlan.selectedMajor.totalCreditsRequired : 0}"></span>
         </p>
 
         <p>Arts & Humanities:
             <span th:text="${schedulePlan.getCreditsForCategory('Arts & Humanities')}"></span> /
-            <span th:text="${schedulePlan.selectedMajor.artsHumanitiesRequired}"></span>
+            <span th:text="${schedulePlan.selectedMajor != null ? schedulePlan.selectedMajor.artsHumanitiesRequired : 0}"></span>
         </p>
 
         <p>Math & Science:
             <span th:text="${schedulePlan.getCreditsForCategory('Math & Science')}"></span> /
-            <span th:text="${schedulePlan.selectedMajor.mathScienceRequired}"></span>
+            <span th:text="${schedulePlan.selectedMajor != null ? schedulePlan.selectedMajor.mathScienceRequired : 0}"></span>
         </p>
 
         <p>Major:
             <span th:text="${schedulePlan.getCreditsForCategory('Major')}"></span> /
-            <span th:text="${schedulePlan.selectedMajor.majorCreditsRequired}"></span>
+            <span th:text="${schedulePlan.selectedMajor != null ? schedulePlan.selectedMajor.majorCreditsRequired : 0}"></span>
         </p>
+
+        <p class="error" th:if="${graduationAlert != null and !graduationAlert.isEmpty()}" th:text="${graduationAlert}"></p>
 
         <hr>
 
-        <p><a href="/courses" class="nav-link">Back to Courses</a></p>
+        <!-- Shows role message for view-only users -->
+        <p class="error" th:if="${isViewOnlyRole}">
+            View-only access: professors and deans can see schedules but cannot edit them.
+        </p>
+
+        <p th:if="${schedulePlan.canModifySchedule()}"><a href="/courses" class="nav-link">Back to Courses</a></p>
     </aside>
 
     <main class="content">
@@ -46,8 +54,9 @@
             <h1>Your Full 8-Semester Plan</h1>
 
             <p class="error" th:if="${submitError}" th:text="${submitError}"></p>
+            <p class="error" th:if="${moveError}" th:text="${moveError}"></p>
 
-            <div th:each="semester : ${schedulePlan.semesters}" class="semester-box">
+            <div th:each="semester, semesterStat : ${schedulePlan.semesters}" class="semester-box">
                 <h2 th:text="${semester.name}"></h2>
 
                 <table>
@@ -56,7 +65,10 @@
                         <th>Title</th>
                         <th>Credits</th>
                         <th>Time</th>
-                        <th></th>
+                        <th>Status</th>
+                        <th>Completed</th>
+                        <th th:if="${schedulePlan.canModifySchedule()}">Move</th>
+                        <th th:if="${schedulePlan.canModifySchedule()}"></th>
                     </tr>
 
                     <tr th:each="c : ${semester.courses}">
@@ -64,10 +76,33 @@
                         <td th:text="${c.title}"></td>
                         <td th:text="${c.credits}"></td>
                         <td th:text="${c.timeslot}"></td>
+                        <td th:text="${schedulePlan.getCourseStatus(c.id)}"></td>
                         <td>
-                            <form method="post" action="/schedule/remove">
+                            <span th:text="${schedulePlan.isCourseCompleted(c.id) ? 'Yes' : 'No'}"></span>
+                        </td>
+                        <td th:if="${schedulePlan.canModifySchedule()}">
+                            <form method="post" action="/schedule/move" th:if="${schedulePlan.canModifySchedule()}">
                                 <input type="hidden" name="courseId" th:value="${c.id}">
-                                <button type="submit">Remove</button>
+                                <select name="targetSemesterIndex">
+                                    <option th:each="targetSemester, targetStat : ${schedulePlan.semesters}"
+                                            th:value="${targetStat.index}"
+                                            th:text="${targetSemester.name}">
+                                    </option>
+                                </select>
+                                <button type="submit">Move</button>
+                            </form>
+                        </td>
+                        <td th:if="${schedulePlan.canModifySchedule()}">
+                            <form method="post" action="/schedule/mark-completed"
+                                  th:if="${schedulePlan.canModifySchedule() and !schedulePlan.isCourseCompleted(c.id)}">
+                                <input type="hidden" name="courseId" th:value="${c.id}">
+                                <button type="submit">Mark Completed</button>
+                            </form>
+
+                            <form method="post" action="/schedule/mark-incomplete"
+                                  th:if="${schedulePlan.canModifySchedule() and schedulePlan.isCourseCompleted(c.id)}">
+                                <input type="hidden" name="courseId" th:value="${c.id}">
+                                <button type="submit">Undo Completed</button>
                             </form>
                         </td>
                     </tr>
@@ -76,11 +111,11 @@
                 <p><strong>Semester Credits:</strong> <span th:text="${semester.totalCredits}"></span></p>
             </div>
 
-            <form method="post" action="/schedule/reset">
+            <form method="post" action="/schedule/reset" th:if="${schedulePlan.canModifySchedule()}">
                 <button type="submit">Reset Plan</button>
             </form>
 
-            <form method="post" action="/schedule/submit">
+            <form method="post" action="/schedule/submit" th:if="${schedulePlan.canSubmitSchedule()}">
                 <button type="submit">Submit Schedule</button>
             </form>
         </div>

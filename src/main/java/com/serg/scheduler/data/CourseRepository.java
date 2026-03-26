@@ -5,4 +5,4 @@ import org.springframework.data.repository.CrudRepository;
 
 //Spring data repository
 //Gives database access methods for courses e.g findAll(), add/update()
-public interface CourseRepository extends CrudRepository<Course, Long> {} //Course entitys (id, name, credits)
+public interface CourseRepository extends CrudRepository<Course, Long> {} //Course entities (id, name, credits)

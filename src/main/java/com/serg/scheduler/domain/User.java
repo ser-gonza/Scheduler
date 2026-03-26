@@ -20,4 +20,8 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    //Role-based access
+    private String role = "STUDENT";
+    //Role-based access
 }

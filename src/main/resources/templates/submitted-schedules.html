@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Submitted Schedules</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<div class="container card">
+    <h1>Submitted Schedules</h1>
+
+    <p><strong>User:</strong> <span th:text="${schedulePlan.username}"></span></p>
+    <p><strong>Role:</strong> <span th:text="${schedulePlan.userRole}"></span></p>
+    <p>View-only access: professors and deans can see submitted schedules but cannot edit them.</p>
+
+    <form method="post" action="/logout">
+        <button type="submit">Log Out</button>
+    </form>
+
+    <div th:if="${#lists.isEmpty(submissions)}">
+        <p>No submitted schedules are available yet.</p>
+    </div>
+
+    <div th:each="submission : ${submissions}" class="semester-box">
+        <h2>
+            <span th:text="${submission.username}"></span>
+            -
+            <span th:text="${submission.majorName}"></span>
+        </h2>
+
+        <p><strong>Expected Graduation:</strong> <span th:text="${submission.expectedGraduationDate}"></span></p>
+        <p><strong>Total Credits:</strong> <span th:text="${submission.totalCredits}"></span></p>
+        <p><strong>Submitted At:</strong> <span th:text="${submission.createdAt}"></span></p>
+
+        <div th:each="semester : ${submission.semesters}" class="semester-box">
+            <h3 th:text="${semester.name}"></h3>
+
+            <table>
+                <tr>
+                    <th>Code</th>
+                    <th>Title</th>
+                    <th>Credits</th>
+                    <th>Time</th>
+                </tr>
+
+                <tr th:each="c : ${semester.courses}">
+                    <td th:text="${c.code}"></td>
+                    <td th:text="${c.title}"></td>
+                    <td th:text="${c.credits}"></td>
+                    <td th:text="${c.timeslot}"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

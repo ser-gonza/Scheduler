@@ -11,7 +11,9 @@
         <h2>Progress</h2>
 
         <p><strong>User:</strong> <span th:text="${schedulePlan.username}"></span></p>
+        <p><strong>Role:</strong> <span th:text="${schedulePlan.userRole}"></span></p>
         <p><strong>Major:</strong> <span th:text="${schedulePlan.selectedMajor.name}"></span></p>
+        <p><strong>Expected Graduation:</strong> <span th:text="${schedulePlan.expectedGraduationDate}"></span></p>
 
         <hr>
 
@@ -51,6 +53,8 @@
             <span th:text="${schedulePlan.selectedMajor.majorCreditsRequired}"></span>
         </p>
 
+        <p class="error" th:if="${graduationAlert != null and !graduationAlert.isEmpty()}" th:text="${graduationAlert}"></p>
+
         <hr>
 
         <p><a href="/schedule" class="nav-link">View Full 8-Semester Plan</a></p>
@@ -68,6 +72,8 @@
                 <p>Adding courses to: <strong th:text="${schedulePlan.currentSemesterName}"></strong></p>
 
                 <p class="error" th:if="${addError}" th:text="${addError}"></p>
+                <p class="small-note" th:if="${addSuccess}" th:text="${addSuccess}"></p>
+                <p class="error" th:if="${addWarning}" th:text="${addWarning}"></p>
 
                 <table>
                     <tr>
@@ -77,6 +83,9 @@
                         <th>Time</th>
                         <th>Category</th>
                         <th>Requirement</th>
+                        <th>Professor</th>
+                        <th>Class Size</th>
+                        <th>Major Fit</th>
                         <th>Prerequisites</th>
                         <th></th>
                     </tr>
@@ -88,13 +97,25 @@
                         <td th:text="${c.timeslot}"></td>
                         <td th:text="${c.creditCategory}"></td>
                         <td th:text="${c.requirementType}"></td>
+                        <td th:text="${c.professorName}"></td>
+                        <td>
+                            <span th:text="${c.enrolledCount}"></span>
+                            /
+                            <span th:text="${c.maxCapacity}"></span>
+                        </td>
+                        <td th:text="${schedulePlan.getMajorFitLabel(c)}"></td>
                         <td th:text="${c.prerequisites}"></td>
                         <td>
                             <div th:if="${schedulePlan.isCourseSelected(c.id)}">
                                 <button disabled>Already Selected</button>
+                                <p class="small-note">Status: <span th:text="${schedulePlan.getCourseStatus(c.id)}"></span></p>
                             </div>
 
-                            <div th:if="${!schedulePlan.isCourseSelected(c.id) and !schedulePlan.canTakeCourse(c)}">
+                            <div th:if="${!schedulePlan.isCourseSelected(c.id) and !schedulePlan.canModifySchedule()}">
+                                <button disabled>Read Only</button>
+                            </div>
+
+                            <div th:if="${!schedulePlan.isCourseSelected(c.id) and schedulePlan.canModifySchedule() and !schedulePlan.canTakeCourse(c)}">
                                 <button disabled>Missing Prereqs</button>
                                 <p class="small-note">
                                     Need:
@@ -102,7 +123,7 @@
                                 </p>
                             </div>
 
-                            <form th:if="${!schedulePlan.isCourseSelected(c.id) and schedulePlan.canTakeCourse(c)}"
+                            <form th:if="${!schedulePlan.isCourseSelected(c.id) and schedulePlan.canModifySchedule() and schedulePlan.canTakeCourse(c)}"
                                   method="post"
                                   action="/schedule/add">
                                 <input type="hidden" name="courseId" th:value="${c.id}">
@@ -121,6 +142,8 @@
                         <th>Code</th>
                         <th>Title</th>
                         <th>Credits</th>
+                        <th>Status</th>
+                        <th>Completed</th>
                         <th></th>
                     </tr>
 
@@ -128,8 +151,10 @@
                         <td th:text="${c.code}"></td>
                         <td th:text="${c.title}"></td>
                         <td th:text="${c.credits}"></td>
+                        <td th:text="${schedulePlan.getCourseStatus(c.id)}"></td>
+                        <td th:text="${schedulePlan.isCourseCompleted(c.id) ? 'Yes' : 'No'}"></td>
                         <td>
-                            <form method="post" action="/schedule/remove">
+                            <form method="post" action="/schedule/remove" th:if="${schedulePlan.canModifySchedule()}">
                                 <input type="hidden" name="courseId" th:value="${c.id}">
                                 <button type="submit">Remove</button>
                             </form>
@@ -141,11 +166,11 @@
                     <span th:text="${schedulePlan.currentSemester.totalCredits}"></span>
                 </p>
 
-                <form method="post" action="/schedule/reset">
+                <form method="post" action="/schedule/reset" th:if="${schedulePlan.canModifySchedule()}">
                     <button type="submit">Reset Entire Plan</button>
                 </form>
 
-                <form method="post" action="/schedule/submit">
+                <form method="post" action="/schedule/submit" th:if="${schedulePlan.canSubmitSchedule()}">
                     <button type="submit">Submit Schedule</button>
                 </form>
             </div>

@@ -19,8 +19,14 @@ public class Course {
     private int credits;
     private String timeslot;
 
-    // New fields
+    //New fields
     private String creditCategory;   //Arts & Humanities, Math & Science, Major
     private String requirementType;  //Core, Elective, GenEd
     private String prerequisites;    //Simple text for now
+
+    //Course availability and major-specific scheduling info
+    private String professorName;
+    private Integer maxCapacity;
+    private Integer enrolledCount;
+    private String recommendedMajorNames; //Comma separated majors or All
 }

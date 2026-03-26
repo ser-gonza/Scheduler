@@ -20,6 +20,11 @@ public class SubmittedSemester {
 
     private int semesterIndex; //Order*
 
+    //Persisted queue/waitlist statuses
+    @Column(length = 2000)
+    private String courseStatusesCsv;
+    //Persisted queue/waitlist statuses
+
     //Ties saved semester back to overall submitted plan
     @ManyToMany
     @JoinTable(

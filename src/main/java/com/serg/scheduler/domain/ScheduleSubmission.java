@@ -23,6 +23,10 @@ public class ScheduleSubmission {
     private String majorName;
     private int totalCredits;
 
+    //Persisted completion state
+    private String completedCourseIdsCsv;
+    //Persisted completion state
+
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)

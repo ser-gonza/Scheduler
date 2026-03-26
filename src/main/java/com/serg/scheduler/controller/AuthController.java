@@ -46,6 +46,12 @@ public class AuthController {
         if (schedulePlan.getUsername() == null || schedulePlan.getUsername().isBlank()) {
             return "redirect:/login";
         }
+
+        //Role aware root redirect
+        if (!"STUDENT".equalsIgnoreCase(schedulePlan.getUserRole())) {
+            return "redirect:/submitted-schedules";
+        }
+
         if (schedulePlan.getSelectedMajor() == null) {
             return "redirect:/majors";
         }
@@ -61,6 +67,8 @@ public class AuthController {
     @PostMapping("/login")
     public String login(@RequestParam("username") String username,
                         @RequestParam("password") String password,
+                        //Role aware login
+                        @RequestParam(value = "role", defaultValue = "STUDENT") String role,
                         @ModelAttribute("schedulePlan") SchedulePlan schedulePlan,
                         Model model) {
 
@@ -73,10 +81,20 @@ public class AuthController {
                 model.addAttribute("loginError", "Incorrect password.");
                 return "login";
             }
+
+            //Load persisted role for existing users
+            if (user.getRole() == null || user.getRole().isBlank()) {
+                user.setRole(role.toUpperCase());
+                userRepo.save(user);
+            }
+            schedulePlan.setUserRole(user.getRole().toUpperCase());
         } else {
             User newUser = new User();
             newUser.setUsername(username);
             newUser.setPassword(password);
+            //Save role for new users
+            newUser.setRole(role.toUpperCase());
+            schedulePlan.setUserRole(role.toUpperCase());
             userRepo.save(newUser);
         }
 
@@ -102,6 +120,9 @@ public class AuthController {
                         SemesterPlan semesterPlan = new SemesterPlan(savedSemester.getName());
                         semesterPlan.getCourses().addAll(savedSemester.getCourses());
                         schedulePlan.getSemesters().add(semesterPlan);
+
+                        //Reload saved course statuses
+                        schedulePlan.loadCourseStatusesFromCsv(savedSemester.getCourseStatusesCsv());
                     });
 
             while (schedulePlan.getSemesters().size() < 8) {
@@ -111,6 +132,14 @@ public class AuthController {
             }
 
             schedulePlan.setCurrentSemesterIndex(0);
+
+            //Reload saved completed-course state
+            schedulePlan.loadCompletedCourseIdsFromCsv(submission.getCompletedCourseIdsCsv());
+
+            //View only roles go straight to submitted schedule records
+            if (!"STUDENT".equalsIgnoreCase(schedulePlan.getUserRole())) {
+                return "redirect:/submitted-schedules";
+            }
 
             if (schedulePlan.getSelectedMajor() != null) {
                 return "redirect:/courses";
@@ -122,6 +151,11 @@ public class AuthController {
         schedulePlan.reset();
         schedulePlan.setUsername(username);
         schedulePlan.setExpectedGraduationDate(calculateExpectedGraduationDate());
+
+        //View only roles can still enter and view all submitted schedules
+        if (!"STUDENT".equalsIgnoreCase(schedulePlan.getUserRole())) {
+            return "redirect:/submitted-schedules";
+        }
 
         return "redirect:/majors";
     }
